@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 
 class dbClient{
     constructor(){
-        const queryString = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@${process.env.SERVER_DB}/?retryWrites=true&w=majority&appName=API-Rest`;
+        const queryString = `mongodb+srv://${process.env.USER_DB}:${process.env.PASS_DB}@${process.env.SERVER_DB}/?retryWrites=true&w=majority&appName=DeliveryCenter-API`;
         this.client = new MongoClient(queryString);
         this.conectarBD();
     }
@@ -11,9 +11,8 @@ class dbClient{
     async conectarBD(){
         try {
             await this.client.connect();
-            this.db = this.client.db('adopcion');
+            this.db = this.client.db(process.env.DB_NAME || 'Delivery-center');
             console.log("Conectado al servidor de base de datos");
-
         }catch (e){
             console.log(e);
         }
