@@ -1,0 +1,206 @@
+# Delivery Center API
+
+Una API REST para gestionar las operaciones de un centro de entregas
+
+## Descripcion
+
+Esta aplicación proporciona un sistema backend para administrar los recursos y operaciones de un centro de entregas:
+
+- **Colaboradores**: Miembros de un equipo o empleados
+- **Perfiles**: Perfiles profesionales de los colaboradores (Roles)
+- **Tribus**: Distintos equipos de trabajo que trabajan con varios clientes y un unico senior manager
+- **Clientes**: Son los clientes con los que se trabaja pa realizar los proyectos
+- **Rubros**: Tipo de rubro al que se dedica el cliente
+- **Proyectos**: Son designados a un cliente y realizados por varios equipos de trabajo (cada tribu tiene varios proyectos)
+
+La API sigue principios RESTful y está construida con Node.js/Express y una base de datos en MongoDB Atlas
+
+## Requisitos Previos
+
+- Node.js (v14 o posterior)
+- npm o yarn
+- MongoDB (local o Atlas)
+
+## Instalacion
+
+1. Clonar el repositorio:
+   ```
+   git clone <repository-url>
+   cd delivery-center-api
+   ```
+
+2. Instalar dependencias:
+   ```
+   npm install
+   ```
+
+3. Crear un archivo `.env` en la raíz con las siguientes variables:
+   ```
+   PORT=5100
+   SERVER_DB=<your-mongodb-server>
+   USER_DB=<your-mongodb-username>
+   PASS_DB=<your-mongodb-password>
+   DB_NAME=Delivery-center
+   ```
+
+   Importante: El archivo `.env` está en `.gitignore` para proteger las credenciales
+
+## Setup de la Base de Datos
+
+Formato de conexión:
+```
+mongodb+srv://<usuario>:<contraseña>@<servidor>/?retryWrites=true&w=majority&appName=DeliveryCenter-API
+```
+
+## Ejecución    
+
+Para ejecutar la aplicación, utiliza el siguiente comando:
+```
+node app.js
+```
+
+El servidor se ejecutará en el puerto definido en el archivo .env (por defecto, 3000, pero esta seteado para arrancar en el 5100).
+
+## Endpoints Principales
+
+### Colaboradores (Collaborators)
+
+- `POST /colaboradores` - Crear un nuevo colaborador
+- `GET /colaboradores` - Obtener todos los colaboradores
+- `GET /colaboradores/:id` - Obtener un colaborador por ID
+- `GET /colaboradores/perfil/:perfilId` - Obtener colaboradores por perfil
+- `GET /colaboradores/tribu/:tribuId` - Obtener colaboradores por tribu
+- `PUT /colaboradores/:id` - Actualizar un colaborador
+- `DELETE /colaboradores/:id` - Eliminar un colaborador
+
+### Perfiles (Profiles)
+
+- `POST /perfiles` - Crear un nuevo perfil
+- `GET /perfiles` - Obtener todos los perfiles
+- `GET /perfiles/:id` - Obtener un perfil por ID
+- `PUT /perfiles/:id` - Actualizar un perfil
+- `DELETE /perfiles/:id` - Eliminar un perfil
+
+### Tribus (Tribes/Teams)
+
+- `POST /tribus` - Crear una nueva tribu
+- `GET /tribus` - Obtener todas las tribus
+- `GET /tribus/:id` - Obtener una tribu por ID
+- `PUT /tribus/:id` - Actualizar una tribu
+- `DELETE /tribus/:id` - Eliminar una tribu
+
+### Clientes (Clients)
+
+- `POST /clientes` - Crear un nuevo cliente
+- `GET /clientes` - Obtener todos los clientes
+- `GET /clientes/:id` - Obtener un cliente por ID
+- `GET /clientes/rubro/:rubroId` - Obtener clientes por rubro
+- `PUT /clientes/:id` - Actualizar un cliente
+- `DELETE /clientes/:id` - Actualizar un cliente
+
+### Rubros (Categories/Sectors)
+
+- `POST /rubros` - Crear un nuevo rubro
+- `GET /rubros` - Obtener todos los rubros
+- `GET /rubros/:id` - Obtener un rubro por ID
+- `PUT /rubros/:id` - Actualizar un rubro
+- `DELETE /rubros/:id` - Eliminar un rubro
+
+### Proyectos (Projects)
+
+- `POST /proyectos` - Crear un nuevo proyecto
+- `GET /proyectos` - Obtener todos los proyectos
+- `GET /proyectos/:id` - Obtener un proyecto por ID
+- `GET /proyectos/cliente/:clienteId` - Obtener proyectos por cliente
+- `GET /proyectos/tribu/:tribuId` - Obtener proyectos por tribu
+- `PUT /proyectos/:id` - Actualizar un proyecto
+- `DELETE /proyectos/:id` - Eliminar un proyecto
+- `POST /proyectos/:proyectoId/colaboradores/:colaboradorId` - Asignar un colaborador a un proyecto
+- `DELETE /proyectos/:proyectoId/colaboradores/:colaboradorId` - Eliminar un colaborador de un proyecto
+
+## MODELOS
+
+### Colaborador (Collaborator)
+```javascript
+{
+  nombre: String,
+  apellido: String,
+  email: String,
+  telefono: String,
+  perfilId: String,  // Referencia a Perfil
+  tribuId: String,   // Referencia a Tribu
+  fechaAlta: Date,
+  fechaBaja: Date,
+  activo: Boolean
+}
+```
+
+### Perfil (Profile)
+```javascript
+{
+  nombre: String,
+  descripcion: String
+}
+```
+
+### Tribu (Tribe)
+```javascript
+{
+  nombre: String,
+  descripcion: String
+}
+```
+
+### Cliente (Client)
+```javascript
+{
+  nombre: String,
+  descripcion: String,
+  rubroId: String,   // Referencia a Rubro
+  contacto: {
+    nombre: String,
+    email: String,
+    telefono: String
+  }
+}
+```
+
+### Rubro (Category)
+```javascript
+{
+  nombre: String,
+  descripcion: String
+}
+```
+
+### Proyecto (Project)
+```javascript
+{
+  nombre: String,
+  descripcion: String,
+  fechaInicio: Date,
+  fechaFin: Date,
+  clienteId: String,  // Referencia a Cliente
+  tribuId: String,    // Referencia a Tribu
+  estado: String,     // ej: "En progreso", "Completado", "Cancelado"
+  colaboradores: [
+    {
+      colaboradorId: String,  // Referencia a Colaborador
+      fechaAsignacion: Date,
+      fechaDesasignacion: Date,
+      rolEnProyecto: String   // ej: "Project Manager", "Developer"
+    }
+  ]
+}
+```
+
+## Error Handling
+
+La API devuelve los siguientes códigos de estado HTTP:
+- 200/201: Éxito
+- 404: Recurso no encontrado
+- 500: Error en el servidor
+
+## Security
+FALTA AUTENTICACIOONNN
+
